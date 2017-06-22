@@ -3,7 +3,6 @@
 #include <SFML\Graphics.hpp>
 #include <cstdlib> 
 #include <iostream>
-#include "Cell.h"
 
 /*
 0 :: Neutral territory
@@ -12,17 +11,17 @@
 */
 	
 
-class Grid
+class theCells
 {
 public:
 public:
-	Grid(int nbrCells, int cellSize);
-	~Grid();
+	theCells(int nbrCells, int cellSize);
+	~theCells();
 
 	void draw(sf::RenderWindow& window);
 	void update();
 	void setCell(int i, int j, int player);
-	void setMatriceCells(std::vector<int> matriceCells);
+	void setMatriceCells(int matriceCells[]);
 	int getCell(int i, int j);
 	void updateMatriceCells();
 	void restart(bool random, sf::RenderWindow& window);
@@ -44,10 +43,8 @@ public:
 
 private:
 
-	std::vector<int> matriceCells;
-	std::vector<int> tempMatriceCells;
-	std::vector<Cell> changedCells;
-	std::vector<Cell> tempChangedCells;
+	int matriceCells[100 * 100];
+	int temp[100 * 100];
 	int nbrCells;
 	int cellSize;
 };
