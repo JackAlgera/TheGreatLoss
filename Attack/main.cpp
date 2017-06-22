@@ -8,6 +8,7 @@
 
 const int nbrCells = 100;
 const int cellSize = 8;
+const int slowDelay = 2; //in ms
 const sf::Vector2i screenDimensions(nbrCells*cellSize + nbrCells + 1, nbrCells*cellSize + nbrCells + 1);
 
 
@@ -18,7 +19,7 @@ int main()
 
 	theCells cells(nbrCells, cellSize);
 	cells.setCell(0, 0, 2);
-	cells.setCell(99, 99, 1);
+	cells.setCell(nbrCells-1, nbrCells-1, 1);
 	cells.updateMatriceCells();
 
 	printf("Witness the fall of an army\n\nPress P to pause, O to restart the simulation and R to start with random starting points\n\nAuthor : Jacobus Algera");
@@ -65,7 +66,7 @@ int main()
 		}
 		cells.draw(window);
 		window.display();
-		Sleep(5);
+		Sleep(slowDelay);
 		window.clear();
 	}
 }
