@@ -1,28 +1,22 @@
-#include "theCells.h"
+#include "Grid.h"
 #include <Windows.h>
 #include <ctime>
 #include <cstdlib> 
 #include <iostream>
 
-theCells::theCells(int nbrCells, int cellSize)
+Grid::Grid(int nbrCells, int cellSize)
 {
 	this->nbrCells = nbrCells;
 	this->cellSize = cellSize;
-	for (int i = 0; i < nbrCells; i++)
-	{
-		for (int j = 0; j < nbrCells; j++)
-		{
-			this->matriceCells[j + i * 100] = 0;
-			this->temp[j + i * 100] = 0;
-		}
-	}
+	this->matriceCells.resize(nbrCells*nbrCells);
+	this->tempMatriceCells.resize(nbrCells*nbrCells);
 }
 
-theCells::~theCells()
+Grid::~Grid()
 {
 }
 
-void theCells::draw(sf::RenderWindow& window)
+void Grid::draw(sf::RenderWindow& window)
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
@@ -33,120 +27,135 @@ void theCells::draw(sf::RenderWindow& window)
 	}
 }
 
-void theCells::update()
+void Grid::update()
 {
-	for (int i = 0; i < nbrCells; i++)
+	changedCells.clear();
+	for (Cell cell : tempChangedCells)
 	{
-		for (int j = 0; j < nbrCells; j++)
+		changedCells.push_back(cell);
+	}
+	tempChangedCells.clear();
+	for(Cell cell : changedCells)
+	{
+		int i = cell.getPosI();
+		int j = cell.getPosJ();
+		if ((i < nbrCells-2) && (j < nbrCells-2) && (i>1) && (j>1))
 		{
-			if ((i < nbrCells-1) && (j < nbrCells-1) && (i>0) && (j>0))
-			{
-				this->setMid(i, j);
-			}
-			else if ((i < nbrCells - 1) && (i>0) && (j==0))
-			{
-				this->setLeft(i, j);
-			}
-			else if ((i < nbrCells - 1) && (i>0) && (j == 99))
-			{
-				this->setRight(i, j);
-			}
-			else if ((j < nbrCells - 1) && (j>0) && (i == 0))
-			{
-				this->setTop(i, j);
-			}
-			else if ((j < nbrCells - 1) && (j>0) && (i == 99))
-			{
-				this->setBot(i, j);
-			}
-			else if ((i == 0) && (j == 0))
-			{
-				this->setTopLeft(i, j);
-			}
-			else if ((i == 0) && (j == 99))
-			{
-				this->setTopRight(i, j);
-			}
-			else if ((i == 99) && (j == 99))
-			{
-				this->setBotRight(i, j);
-			}
-			else if ((i == 99) && (j == 0))
-			{
-				this->setBotLeft(i, j);
-			}
+			this->setMid(i - 1, j - 1);
+			this->setMid(i - 1, j);
+			this->setMid(i - 1, j + 1);
+			this->setMid(i, j - 1);
+			this->setMid(i, j);
+			this->setMid(i, j + 1);
+			this->setMid(i + 1, j - 1);
+			this->setMid(i + 1, j);
+			this->setMid(i + 1, j + 1);
+		}
+		else if ((i < nbrCells - 1) && (i>0) && (j==0))
+		{
+			this->setLeft(i, j);
+		}
+		else if ((i < nbrCells - 1) && (i>0) && (j == nbrCells-1))
+		{
+			this->setRight(i, j);
+		}
+		else if ((j < nbrCells - 1) && (j>0) && (i == 0))
+		{
+			this->setTop(i, j);
+		}
+		else if ((j < nbrCells - 1) && (j>0) && (i == nbrCells - 1))
+		{
+			this->setBot(i, j);
+		}
+		else if ((i == 0) && (j == 0))
+		{
+			this->setTopLeft(i, j);
+		}
+		else if ((i == 0) && (j == nbrCells - 1))
+		{
+			this->setTopRight(i, j);
+		}
+		else if ((i == nbrCells - 1) && (j == nbrCells - 1))
+		{
+			this->setBotRight(i, j);
+		}
+		else if ((i == nbrCells - 1) && (j == 0))
+		{
+			this->setBotLeft(i, j);
+			
 		}
 	}
 	this->updateMatriceCells();
 }
 
-void theCells::setCell(int i, int j, int player)
+void Grid::setCell(int i, int j, int player)
 {
-	temp[j + i*nbrCells] = player;
+	tempMatriceCells.at(j + i*nbrCells) = player;
+	tempChangedCells.push_back(Cell(i, j));
 }
 
-void theCells::setMatriceCells(int newMatriceCells[])
+void Grid::setMatriceCells(std::vector<int> newMatriceCells)
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
 		for (int j = 0; j < nbrCells; j++)
 		{
-			this->matriceCells[j + i * 100] = newMatriceCells[j + i * 100];
+			this->matriceCells.at(j + i*nbrCells) = newMatriceCells.at(j + i*nbrCells);
 		}
 	}
 }
 
-int theCells::getCell(int i, int j)
+int Grid::getCell(int i, int j)
 {
-	return matriceCells[j + i*nbrCells];
+	return matriceCells.at(j + i*nbrCells);
 }
 
-void theCells::updateMatriceCells()
+void Grid::updateMatriceCells()
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
 		for (int j = 0; j < nbrCells; j++)
 		{
-			this->matriceCells[j + i * 100] = this->temp[j + i * 100];
+			this->matriceCells.at(j + i*nbrCells) = this->tempMatriceCells.at(j + i*nbrCells);
 		}
 	}
 }
 
-void theCells::restart(bool random, sf::RenderWindow& window)
+void Grid::restart(bool random, sf::RenderWindow& window)
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
 		for (int j = 0; j < nbrCells; j++)
 		{
-			this->matriceCells[j + i * 100] = 0;
-			this->temp[j + i * 100] = 0;
+			this->matriceCells.at(j + i*nbrCells) = 0;
+			this->tempMatriceCells.at(j + i*nbrCells) = 0;
 		}
 	}
 	if (!random)
 	{
 		this->setCell(0, 0, 2);
-		this->setCell(99, 99, 1);
+		this->setCell(nbrCells - 1, nbrCells - 1, 1);
 	}
 	else
 	{
-		this->setCell(rand() % 100, rand() % 100, 2);
-		this->setCell(rand() % 100, rand() % 100, 1);
+		this->setCell(rand() % nbrCells, rand() % nbrCells, 2);
+		this->setCell(rand() % nbrCells, rand() % nbrCells, 1);
 	}
 	this->updateMatriceCells();
 	this->draw(window);
 }
 
 
-void theCells::testCells(int i, int j, int& nbr1, int& nbr2)
+void Grid::testCells(int i, int j, int& nbr1, int& nbr2)
 {
-	int cellNumber = matriceCells[j + i * 100];
+	int cellNumber = matriceCells.at(j + i * nbrCells);
 	if (cellNumber == 1)
 		nbr1++;
 	else if (cellNumber == 2)
 		nbr2++;
 }
 
-void theCells::drawCell(int i, int j, sf::RenderWindow& window)
+void Grid::drawCell(int i, int j, sf::RenderWindow& window)
 {
 	sf::VertexArray cell(sf::PrimitiveType::Quads, 4);
 	sf::Color color;
@@ -157,11 +166,11 @@ void theCells::drawCell(int i, int j, sf::RenderWindow& window)
 	cell[3].position = sf::Vector2f((j + 1) + j*cellSize, (i + 1) + i*cellSize + cellSize);
 
 
-	if (matriceCells[j + i*nbrCells] == 0)
+	if (matriceCells.at(j + i * nbrCells) == 0)
 		color = sf::Color::White;
-	else if (matriceCells[j + i*nbrCells] == 1)
+	else if (matriceCells.at(j + i * nbrCells) == 1)
 		color = sf::Color::Black;
-	else if (matriceCells[j + i*nbrCells] == 2)
+	else if (matriceCells.at(j + i * nbrCells) == 2)
 		color = sf::Color::Red;
 
 
@@ -173,7 +182,7 @@ void theCells::drawCell(int i, int j, sf::RenderWindow& window)
 	window.draw(cell);
 }
 
-void theCells::setMid(int i, int j)
+void Grid::setMid(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -190,12 +199,6 @@ void theCells::setMid(int i, int j)
 	this->testCells(i+1,j, nbr1, nbr2);
 	this->testCells(i+1,j+1, nbr1, nbr2);
 
-	/*
-	if ((nbr1 == 1) && (nbr2 == 8))
-		this->setCell(i, j, 2);
-	else if ((nbr1 == 8) && (nbr2 == 1))
-		this->setCell(i, j, 1);
-	*/
 	if (chance < (double)nbr1/9.0)
 		this->setCell(i, j, 1);
 	else if (chance > (1.0-(double)nbr2/9.7))
@@ -203,7 +206,7 @@ void theCells::setMid(int i, int j)
 
 }
 
-void theCells::setLeft(int i, int j)
+void Grid::setLeft(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -223,7 +226,7 @@ void theCells::setLeft(int i, int j)
 
 }
 
-void theCells::setRight(int i, int j)
+void Grid::setRight(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -242,7 +245,7 @@ void theCells::setRight(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setTop(int i, int j)
+void Grid::setTop(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -261,7 +264,7 @@ void theCells::setTop(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setBot(int i, int j)
+void Grid::setBot(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -280,7 +283,7 @@ void theCells::setBot(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setTopLeft(int i, int j)
+void Grid::setTopLeft(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -297,7 +300,7 @@ void theCells::setTopLeft(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setTopRight(int i, int j)
+void Grid::setTopRight(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -314,7 +317,7 @@ void theCells::setTopRight(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setBotRight(int i, int j)
+void Grid::setBotRight(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -331,7 +334,7 @@ void theCells::setBotRight(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setBotLeft(int i, int j)
+void Grid::setBotLeft(int i, int j)
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;

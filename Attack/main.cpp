@@ -2,12 +2,13 @@
 
 #include <Windows.h>
 #include <ctime>
-#include "theCells.h"
+#include "Grid.h"
 #include <iostream>
 #include <cstdlib> 
 
 const int nbrCells = 100;
 const int cellSize = 8;
+const int slowDelay = 2; //in ms
 const sf::Vector2i screenDimensions(nbrCells*cellSize + nbrCells + 1, nbrCells*cellSize + nbrCells + 1);
 
 
@@ -16,9 +17,12 @@ int main()
 	srand(time(NULL));
 	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "The great loss - Paused", sf::Style::Close | sf::Style::Titlebar);
 
-	theCells cells(nbrCells, cellSize);
-	cells.setCell(0, 0, 2);
-	cells.setCell(99, 99, 1);
+	Grid cells(nbrCells, cellSize);
+	cells.setCell(2, 2, 2);
+	cells.setCell(2, 3, 2);
+	cells.setCell(3, 3, 2);
+	cells.setCell(3, 2, 2);
+	cells.setCell(nbrCells-1, nbrCells-1, 1);
 	cells.updateMatriceCells();
 
 	printf("Witness the fall of an army\n\nPress P to pause, O to restart the simulation and R to start with random starting points\n\nAuthor : Jacobus Algera");
@@ -65,7 +69,7 @@ int main()
 		}
 		cells.draw(window);
 		window.display();
-		Sleep(5);
+		Sleep(slowDelay);
 		window.clear();
 	}
 }
