@@ -47,8 +47,8 @@ public:
 
 private:
 
-	int matriceCells[100 * 100];
-	int temp[100 * 100];
+	std::vector<int> matriceCells;
+	std::vector<int> temp;
 	int nbrCells;
 	int cellSize;
 };

@@ -8,14 +8,8 @@ theCells::theCells(int nbrCells, int cellSize)			//Initializes each cell with 0,
 {
 	this->nbrCells = nbrCells;
 	this->cellSize = cellSize;
-	for (int i = 0; i < nbrCells; i++)
-	{
-		for (int j = 0; j < nbrCells; j++)
-		{
-			this->matriceCells[j + i * 100] = 0;
-			this->temp[j + i * 100] = 0;
-		}
-	}
+	this->matriceCells.resize(nbrCells*nbrCells);
+	this->temp.resize(nbrCells*nbrCells);
 }
 
 theCells::~theCells()
@@ -47,7 +41,7 @@ void theCells::update()										//Updates each square, being careful to not do 
 			{
 				this->setLeft(i, j);
 			}
-			else if ((i < nbrCells - 1) && (i>0) && (j == 99))
+			else if ((i < nbrCells - 1) && (i>0) && (j == nbrCells-1))
 			{
 				this->setRight(i, j);
 			}
@@ -55,7 +49,7 @@ void theCells::update()										//Updates each square, being careful to not do 
 			{
 				this->setTop(i, j);
 			}
-			else if ((j < nbrCells - 1) && (j>0) && (i == 99))
+			else if ((j < nbrCells - 1) && (j>0) && (i == nbrCells - 1))
 			{
 				this->setBot(i, j);
 			}
@@ -63,15 +57,15 @@ void theCells::update()										//Updates each square, being careful to not do 
 			{
 				this->setTopLeft(i, j);
 			}
-			else if ((i == 0) && (j == 99))
+			else if ((i == 0) && (j == nbrCells - 1))
 			{
 				this->setTopRight(i, j);
 			}
-			else if ((i == 99) && (j == 99))
+			else if ((i == nbrCells - 1) && (j == nbrCells - 1))
 			{
 				this->setBotRight(i, j);
 			}
-			else if ((i == 99) && (j == 0))
+			else if ((i == nbrCells - 1) && (j == 0))
 			{
 				this->setBotLeft(i, j);
 			}
@@ -91,7 +85,7 @@ void theCells::setMatriceCells(int newMatriceCells[])			//Used in the function t
 	{
 		for (int j = 0; j < nbrCells; j++)
 		{
-			this->matriceCells[j + i * 100] = newMatriceCells[j + i * 100];
+			this->matriceCells[j + i * nbrCells] = newMatriceCells[j + i * nbrCells];
 		}
 	}
 }
@@ -107,7 +101,7 @@ void theCells::updateMatriceCells()								//Copies the temp matrix to the actua
 	{
 		for (int j = 0; j < nbrCells; j++)
 		{
-			this->matriceCells[j + i * 100] = this->temp[j + i * 100];
+			this->matriceCells[j + i * nbrCells] = this->temp[j + i * nbrCells];
 		}
 	}
 }
@@ -118,19 +112,19 @@ void theCells::restart(bool random, sf::RenderWindow& window)				//Reinitializes
 	{
 		for (int j = 0; j < nbrCells; j++)
 		{
-			this->matriceCells[j + i * 100] = 0;
-			this->temp[j + i * 100] = 0;
+			this->matriceCells[j + i * nbrCells] = 0;
+			this->temp[j + i * nbrCells] = 0;
 		}
 	}
 	if (!random)
 	{
 		this->setCell(0, 0, 2);
-		this->setCell(99, 99, 1);
+		this->setCell(nbrCells - 1, nbrCells - 1, 1);
 	}
 	else
 	{
-		this->setCell(rand() % 100, rand() % 100, 2);
-		this->setCell(rand() % 100, rand() % 100, 1);
+		this->setCell(rand() % nbrCells, rand() % nbrCells, 2);
+		this->setCell(rand() % nbrCells, rand() % nbrCells, 1);
 	}
 	this->updateMatriceCells();
 	this->draw(window);
@@ -139,7 +133,7 @@ void theCells::restart(bool random, sf::RenderWindow& window)				//Reinitializes
 
 void theCells::testCells(int i, int j, int& nbr1, int& nbr2)			//Used in the functions that update each cell for a given position (e.g the middle cell having 8 neighbors, does not have the same function to determine it's new color compared to a cell from a corner, which only has 3 neighbors).
 {
-	int cellNumber = matriceCells[j + i * 100];
+	int cellNumber = matriceCells.at(j + i * nbrCells);
 	if (cellNumber == 1)
 		nbr1++;
 	else if (cellNumber == 2)
@@ -157,11 +151,11 @@ void theCells::drawCell(int i, int j, sf::RenderWindow& window)				//Draws a giv
 	cell[3].position = sf::Vector2f((j + 1) + j*cellSize, (i + 1) + i*cellSize + cellSize);
 
 
-	if (matriceCells[j + i*nbrCells] == 0)
+	if (matriceCells.at(j + i * nbrCells) == 0)
 		color = sf::Color::White;
-	else if (matriceCells[j + i*nbrCells] == 1)
+	else if (matriceCells.at(j + i * nbrCells) == 1)
 		color = sf::Color::Black;
-	else if (matriceCells[j + i*nbrCells] == 2)
+	else if (matriceCells.at(j + i * nbrCells) == 2)
 		color = sf::Color::Red;
 
 

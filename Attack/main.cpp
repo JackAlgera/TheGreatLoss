@@ -6,37 +6,30 @@
 #include <iostream>
 #include <cstdlib> 
 
-/*
-Program that simulates a battle between two sides, one sides evidently having the upper hand
-The simulation uses a matrix to determine the color of each square.
-The probability of a square turning into a certain color depends on it's color and the amount of neighbors that square has for a given color.
-
-Author : Jacobus ALGERA
-*/
-
 const int nbrCells = 100;
 const int cellSize = 8;
+const int slowDelay = 2; //in ms
 const sf::Vector2i screenDimensions(nbrCells*cellSize + nbrCells + 1, nbrCells*cellSize + nbrCells + 1);
 
 
 int main()
 {
 	srand(time(NULL));
-	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "The great loss - Paused", sf::Style::Close | sf::Style::Titlebar);	//Creates the window 
+	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "The great loss - Paused", sf::Style::Close | sf::Style::Titlebar);
 
 	theCells cells(nbrCells, cellSize);
-	cells.setCell(0, 0, 2);								//Initial position of team 2
-	cells.setCell(99, 99, 1);							//Initial position of team 1
+	cells.setCell(0, 0, 2);
+	cells.setCell(nbrCells-1, nbrCells-1, 1);
 	cells.updateMatriceCells();
 
 	printf("Witness the fall of an army\n\nPress P to pause, O to restart the simulation and R to start with random starting points\n\nAuthor : Jacobus Algera");
 
-	bool gamePause = true;						
+	bool gamePause = true;
 
-	while (window.isOpen())								//Main simulation loop
+	while (window.isOpen())
 	{
 		sf::Event evnt;
-		while (window.pollEvent(evnt))					//Handles the events
+		while (window.pollEvent(evnt))
 		{
 			if (evnt.type == sf::Event::Closed)
 			{
@@ -73,7 +66,7 @@ int main()
 		}
 		cells.draw(window);
 		window.display();
-		Sleep(5);
+		Sleep(slowDelay);
 		window.clear();
 	}
 }
