@@ -4,7 +4,7 @@
 #include <cstdlib> 
 #include <iostream>
 
-theCells::theCells(int nbrCells, int cellSize)
+theCells::theCells(int nbrCells, int cellSize)			//Initializes each cell with 0, thus clearing the field
 {
 	this->nbrCells = nbrCells;
 	this->cellSize = cellSize;
@@ -22,7 +22,7 @@ theCells::~theCells()
 {
 }
 
-void theCells::draw(sf::RenderWindow& window)
+void theCells::draw(sf::RenderWindow& window)					//Draws the squares, using the matrix to determine the color of each square
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
@@ -33,7 +33,7 @@ void theCells::draw(sf::RenderWindow& window)
 	}
 }
 
-void theCells::update()
+void theCells::update()										//Updates each square, being careful to not do the same tests on each square as not all squares have the same amount of neighbors (e.g square in the middle has 8 neighbors and a square in a corner only has 3)
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
@@ -80,12 +80,12 @@ void theCells::update()
 	this->updateMatriceCells();
 }
 
-void theCells::setCell(int i, int j, int player)
+void theCells::setCell(int i, int j, int player)			
 {
 	temp[j + i*nbrCells] = player;
 }
 
-void theCells::setMatriceCells(int newMatriceCells[])
+void theCells::setMatriceCells(int newMatriceCells[])			//Used in the function that updates the matrix, I use a temp matrix to note each cell's changes, as to not update a cell before finishing all the tests on every cell.
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
@@ -101,7 +101,7 @@ int theCells::getCell(int i, int j)
 	return matriceCells[j + i*nbrCells];
 }
 
-void theCells::updateMatriceCells()
+void theCells::updateMatriceCells()								//Copies the temp matrix to the actual matrix
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
@@ -112,7 +112,7 @@ void theCells::updateMatriceCells()
 	}
 }
 
-void theCells::restart(bool random, sf::RenderWindow& window)
+void theCells::restart(bool random, sf::RenderWindow& window)				//Reinitializes the program, being able to pick a random starting position
 {
 	for (int i = 0; i < nbrCells; i++)
 	{
@@ -137,7 +137,7 @@ void theCells::restart(bool random, sf::RenderWindow& window)
 }
 
 
-void theCells::testCells(int i, int j, int& nbr1, int& nbr2)
+void theCells::testCells(int i, int j, int& nbr1, int& nbr2)			//Used in the functions that update each cell for a given position (e.g the middle cell having 8 neighbors, does not have the same function to determine it's new color compared to a cell from a corner, which only has 3 neighbors).
 {
 	int cellNumber = matriceCells[j + i * 100];
 	if (cellNumber == 1)
@@ -146,12 +146,12 @@ void theCells::testCells(int i, int j, int& nbr1, int& nbr2)
 		nbr2++;
 }
 
-void theCells::drawCell(int i, int j, sf::RenderWindow& window)
+void theCells::drawCell(int i, int j, sf::RenderWindow& window)				//Draws a given square or cell
 {
 	sf::VertexArray cell(sf::PrimitiveType::Quads, 4);
 	sf::Color color;
 
-	cell[0].position = sf::Vector2f((j + 1) + j*cellSize, (i + 1) + i*cellSize);	//Specifying the 4 corners of the cell
+	cell[0].position = sf::Vector2f((j + 1) + j*cellSize, (i + 1) + i*cellSize);	//Used to draw a vertex, and thus a cell
 	cell[1].position = sf::Vector2f((j + 1) + j*cellSize + cellSize, (i + 1) + i*cellSize);
 	cell[2].position = sf::Vector2f((j + 1) + j*cellSize + cellSize, (i + 1) + i*cellSize + cellSize);
 	cell[3].position = sf::Vector2f((j + 1) + j*cellSize, (i + 1) + i*cellSize + cellSize);
@@ -173,8 +173,8 @@ void theCells::drawCell(int i, int j, sf::RenderWindow& window)
 	window.draw(cell);
 }
 
-void theCells::setMid(int i, int j)
-{
+void theCells::setMid(int i, int j)					//For : 0<i , j<99 (e.g the middle 1x1 squares of a 100x100 square, the top left corner square being i=0 and j=0)
+{													//The function counts the amount of neighbors (and it's color) of a given color there are to the given square and then determines what color it will change to, the more of a given color there is, the more likely the cell will change to that color
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
 
@@ -190,12 +190,6 @@ void theCells::setMid(int i, int j)
 	this->testCells(i+1,j, nbr1, nbr2);
 	this->testCells(i+1,j+1, nbr1, nbr2);
 
-	/*
-	if ((nbr1 == 1) && (nbr2 == 8))
-		this->setCell(i, j, 2);
-	else if ((nbr1 == 8) && (nbr2 == 1))
-		this->setCell(i, j, 1);
-	*/
 	if (chance < (double)nbr1/9.0)
 		this->setCell(i, j, 1);
 	else if (chance > (1.0-(double)nbr2/9.7))
@@ -203,7 +197,7 @@ void theCells::setMid(int i, int j)
 
 }
 
-void theCells::setLeft(int i, int j)
+void theCells::setLeft(int i, int j)			//0<i<99, j==0
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -223,7 +217,7 @@ void theCells::setLeft(int i, int j)
 
 }
 
-void theCells::setRight(int i, int j)
+void theCells::setRight(int i, int j)			//0<i<99, j==99
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -242,7 +236,7 @@ void theCells::setRight(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setTop(int i, int j)
+void theCells::setTop(int i, int j)				//0<j<99, i==0
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -261,7 +255,7 @@ void theCells::setTop(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setBot(int i, int j)
+void theCells::setBot(int i, int j)				//0<j<99, i==99
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -280,7 +274,7 @@ void theCells::setBot(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setTopLeft(int i, int j)
+void theCells::setTopLeft(int i, int j)			//j==i==0
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -297,7 +291,7 @@ void theCells::setTopLeft(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setTopRight(int i, int j)
+void theCells::setTopRight(int i, int j)		//j==99,i==0
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -314,7 +308,7 @@ void theCells::setTopRight(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setBotRight(int i, int j)
+void theCells::setBotRight(int i, int j)		//j==i==99
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;
@@ -331,7 +325,7 @@ void theCells::setBotRight(int i, int j)
 		this->setCell(i, j, 2);
 }
 
-void theCells::setBotLeft(int i, int j)
+void theCells::setBotLeft(int i, int j)			//j==0, i==99
 {
 	double randNum = (double)rand();
 	double chance = randNum / (double)RAND_MAX;

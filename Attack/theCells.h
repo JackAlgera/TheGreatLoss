@@ -5,6 +5,10 @@
 #include <iostream>
 
 /*
+Class that handles the field of squares
+
+Uses a matrice of ints to determine which color square to be placed.
+
 0 :: Neutral territory
 1 :: player 1
 2 :: player 2
